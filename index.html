@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>60分パーソナル評価フォーム｜adjustment-lab</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<meta name="theme-color" content="#f8faf9">
+<style>
+:root{
+  --bg:#f8faf9;
+  --card:#ffffff;
+  --accent:#00b386;
+  --accent-soft:#c9f1e4;
+  --text:#1a1a1a;
+  --muted:#666;
+  --line:rgba(0,0,0,0.08);
+  --danger:#e45757;
+  --warn:#e6a600;
+  --ok:#00a36f;
+  font-family:"Noto Sans JP","Hiragino Sans","Yu Gothic",sans-serif;
+}
+/* ===== 全体 ===== */
+body{
+margin:0;
+background:var(--bg);
+color:var(--text);
+text-rendering:optimizeLegibility;
+}
+.app{
+max-width:960px;
+margin:0 auto;
+padding:12px 8px 80px;
+}
+header{
+position:sticky;
+top:0;
+z-index:10;
+background:var(--bg);
+padding:8px 4px 6px;
+}
+header h1{
+margin:4px 0 2px;
+font-size:18px;
+}
+header p{
+margin:0;
+font-size:11px;
+color:var(--muted);
+}
+
+/* ステップナビ */
+.step-nav{
+display:flex;
+gap:4px;
+margin-top:6px;
+}
+.step-dot{
+flex:1;
+height:6px;
+border-radius:999px;
+background:var(--line);
+}
+.step-dot.active{
+background:var(--accent);
+}
+
+/* セクションカード */
+.section{
+display:none;
+margin-top:10px;
+}
+.section.active{
+display:block;
+}
+.card{
+background:var(--card);
+border-radius:10px;
+box-shadow:0 2px 6px rgba(0,0,0,0.04);
+padding:10px;
+border:1px solid var(--line);
+}
+.section h2{
+margin:0 0 6px;
+font-size:16px;
+}
+.section h3{
+margin:12px 0 4px;
+font-size:13px;
+color:var(--muted);
+}
+.small-note{
+font-size:10px;
+color:var(--muted);
+margin-bottom:6px;
+}
+
+/* 入力系 */
+.row{
+display:flex;
+flex-wrap:wrap;
+gap:6px;
+margin-bottom:6px;
+align-items:center;
+}
+.row label{
+font-size:12px;
+}
+.row input[type="text"],
+.row input[type="number"],
+.row select{
+flex:1;
+min-width:60px;
+padding:4px 6px;
+font-size:12px;
+border-radius:6px;
+border:1px solid var(--line);
+background:#fff;
+box-sizing:border-box;
+}
+.row input[type="number"]{
+-moz-appearance:textfield;
+}
+.row input[type="number"]::-webkit-outer-spin-button,
+.row input[type="number"]::-webkit-inner-spin-button{
+-webkit-appearance:none;
+margin:0;
+}
+
+/* OHSチェック */
+.ohs-grid{
+border-top:1px solid var(--line);
+margin-top:4px;
+}
+.ohs-item{
+display:grid;
+grid-template-columns: minmax(0,1.6fr) auto auto auto;
+gap:4px;
+align-items:center;
+padding:5px 0;
+border-bottom:1px solid var(--line);
+}
+.ohs-label{
+font-size:11px;
+}
+.flag-toggle-wrap{
+display:flex;
+gap:4px;
+justify-content:flex-end;
+}
+.flag-btn{
+font-size:11px;
+padding:2px 8px;
+border-radius:999px;
+border:1px solid var(--line);
+background:#fff;
+cursor:pointer;
+}
+.flag-btn.on-yes{
+background:var(--accent-soft);
+border-color:var(--accent);
+color:var(--text);
+}
+.flag-btn.on-no{
+background:#ffe0e0;
+border-color:var(--danger);
+color:#b02020;
+}
+.hint-btn{
+font-size:10px;
+padding:1px 6px;
+border-radius:999px;
+border:1px solid var(--line);
+background:#f2f2f2;
+cursor:pointer;
+}
+.hint{
+grid-column:1 / -1;
+font-size:10px;
+color:var(--muted);
+display:none;
+}
+.hint.open{
+display:block;
+}
+
+/* 特別エラー */
+.special-error{
+margin-top:8px;
+padding-top:6px;
+border-top:1px dashed var(--line);
+}
+.special-chips{
+display:flex;
+flex-wrap:wrap;
+gap:4px;
+margin-top:4px;
+}
+.chip{
+font-size:11px;
+padding:3px 8px;
+border-radius:999px;
+border:1px solid var(--line);
+background:#fff;
+cursor:pointer;
+}
+.chip.on{
+background:#ffe8cc;
+border-color:var(--warn);
+}
+
+/* テーブル風レイアウト */
+.table{
+width:100%;
+border-collapse:collapse;
+margin-top:4px;
+}
+.table th,
+.table td{
+border:1px solid var(--line);
+padding:4px 3px;
+font-size:11px;
+text-align:center;
+}
+.table thead{
+background:#f3f5f4;
+}
+
+/* ボタン */
+.actions{
+display:flex;
+justify-content:space-between;
+gap:8px;
+margin-top:10px;
+}
+.btn{
+flex:1;
+padding:8px;
+border-radius:999px;
+border:none;
+font-size:13px;
+cursor:pointer;
+}
+.btn-primary{
+background:var(--accent);
+color:#fff;
+}
+.btn-secondary{
+background:#e1e5e4;
+color:var(--text);
+}
+.btn-ghost{
+flex:0 0 auto;
+padding:6px 10px;
+background:transparent;
+border-radius:999px;
+border:1px solid var(--line);
+font-size:11px;
+}
+
+/* 評価表示 */
+.eval-box{
+margin-top:8px;
+padding:6px;
+border-radius:8px;
+border:1px solid var(--line);
+background:#fbfcfb;
+font-size:11px;
+}
+.eval-title{
+font-weight:600;
+margin-bottom:2px;
+}
+.tag{
+display:inline-block;
+padding:1px 6px;
+border-radius:999px;
+font-size:10px;
+border:1px solid var(--line);
+margin-right:4px;
+}
+.tag-good{
+border-color:var(--ok);
+color:var(--ok);
+}
+.tag-warn{
+border-color:var(--warn);
+color:var(--warn);
+}
+.tag-bad{
+border-color:var(--danger);
+color:var(--danger);
+}
+
+/* フッターナビ */
+.footer-nav{
+position:fixed;
+left:0;
+right:0;
+bottom:0;
+background:rgba(248,250,249,0.97);
+border-top:1px solid var(--line);
+padding:6px 8px 8px;
+}
+.footer-nav-inner{
+max-width:960px;
+margin:0 auto;
+display:flex;
+gap:6px;
+}
+
+/* スマホ調整 */
+@media (max-width:600px){
+.app{
+padding:8px 6px 80px;
+}
+.ohs-item{
+grid-template-columns:minmax(0,1.7fr) auto auto;
+}
+.ohs-item .hint-btn{
+justify-self:flex-end;
+}
+.flag-toggle-wrap{
+grid-column:1 / -1;
+justify-content:flex-start;
+}
+}
+</style>
+
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>60分パーソナル評価フォーム</h1>
+    <p>Overhead Squat → Standing Band Press（enode）→ CMJ/RSI → BLAST → ネットスロー（Pocket Radar）を一括記録。</p>
+    <div class="step-nav" id="stepNav">
+      <div class="step-dot active"></div>
+      <div class="step-dot"></div>
+      <div class="step-dot"></div>
+      <div class="step-dot"></div>
+      <div class="step-dot"></div>
+      <div class="step-dot"></div>
+      <div class="step-dot"></div>
+    </div>
+  </header>
+  <!-- STEP 1: 選手情報 -->
+  <section class="section active" data-step="1">
+    <div class="card">
+      <h2>STEP1｜選手情報</h2>
+      <p class="small-note">基本情報と今日のコンディションを記録。</p>
+      <div class="row">
+        <label for="playerName">選手名</label>
+        <input id="playerName" type="text" placeholder="例）山田 太郎">
+      </div>
+      <div class="row">
+        <label for="playerAge">年齢</label>
+        <input id="playerAge" type="number" min="12" max="40" placeholder="">
+        <label for="playerCat">カテゴリ</label>
+        <select id="playerCat">
+          <option value="">選択</option>
+          <option>高校生</option>
+          <option>大学生</option>
+          <option>社会人</option>
+          <option>プロ</option>
+        </select>
+      </div>
+      <div class="row">
+        <label for="playerPos">ポジション</label>
+        <input id="playerPos" type="text" placeholder="例）投手／内野手／外野手など">
+      </div>
+      <div class="row">
+        <label for="throwBat">投／打</label>
+        <input id="throwBat" type="text" placeholder="例）右投左打">
+      </div>
+      <div class="row">
+        <label for="condToday">今日のコンディション（主観 1〜10）</label>
+        <input id="condToday" type="number" min="1" max="10" placeholder="">
+      </div>
+      <div class="row">
+        <label for="sessionNote">特記事項メモ</label>
+        <input id="sessionNote" type="text" placeholder="疲労／痛み／大会前後など">
+      </div>
+    </div>
+  </section>
+  <!-- STEP 2: Overhead Squat -->
+  <section class="section" data-step="2">
+    <div class="card">
+      <h2>STEP2｜Overhead Squat 評価</h2>
+      <p class="small-note">12項目＋特別エラーをタップ。できている／できていないを二択で入力。</p>
+  <h3>2-1. OHSチェック（12項目）</h3>
+  <div class="ohs-grid" id="ohsGrid">
+    <!-- 1 足底重心 -->
+    <div class="ohs-item" data-key="foot_load">
+      <div class="ohs-label">足底の重心位置が踵〜母趾球〜小趾球の三点内に収まる</div>
+      <button class="hint-btn" type="button">基準</button>
+      <div class="flag-toggle-wrap">
+        <button class="flag-btn" type="button" data-flag="yes">できている</button>
+        <button class="flag-btn" type="button" data-flag="no">できていない</button>
+      </div>
+      <div class="hint">しゃがんだ際に足がねじれず、踵が浮かず、親指だけ・小指だけに偏らない。</div>
+    </div>
+    <!-- 2 足関節背屈 -->
+    <div class="ohs-item" data-key="ankle_dorsiflex">
+      <div class="ohs-label">足関節の背屈が確保され、しゃがんでも踵が浮かない</div>
+      <button class="hint-btn" type="button">基準</button>
+      <div class="flag-toggle-wrap">
+        <button class="flag-btn" type="button" data-flag="yes">できている</button>
+        <button class="flag-btn" type="button" data-flag="no">できていない</button>
+      </div>
+      <div class="hint">膝がつま先より前に出ても踵が浮かず、足関節がスムーズに曲がる。</div>
+    </div>
+    <!-- 3 膝アライメント -->
+    <div class="ohs-item" data-key="knee_align">
+      <div class="ohs-label">膝がつま先方向を向き、ニーイン／ニーアウトが出ない</div>
+      <button class="hint-btn" type="button">基準</button>
+      <div class="flag-toggle-wrap">
+        <button class="flag-btn" type="button" data-flag="yes">できている</button>
+        <button class="flag-btn" type="button" data-flag="no">できていない</button>
+      </div>
+      <div class="hint">しゃがみ込み中も膝が内側または外側に大きく崩れない。</div>
+    </div>
+    <!-- 4 股関節ヒップヒンジ -->
+    <div class="ohs-item" data-key="hip_hinge">
+      <div class="ohs-label">股関節から曲がり、腰だけで折れない（ヒップヒンジが出る）</div>
+      <button class="hint-btn" type="button">基準</button>
+      <div class="flag-toggle-wrap">
+        <button class="flag-btn" type="button" data-flag="yes">できている</button>
+        <button class="flag-btn" type="button" data-flag="no">できていない</button>
+      </div>
+      <div class="hint">しゃがむときに骨盤から動き、腰だけが丸まりすぎたり反りすぎたりしない。</div>
+    </div>
+    <!-- 5 骨盤ポジション -->
+    <div class="ohs-item" data-key="pelvis">
+      <div class="ohs-label">骨盤が大きく前傾／後傾せず、中間位を保てる</div>
+      <button class="hint-btn" type="button">基準</button>
+      <div class="flag-toggle-wrap">
+        <button class="flag-btn" type="button" data-flag="yes">できている</button>
+        <button class="flag-btn" type="button" data-flag="no">できていない</button>
+      </div>
+      <div class="hint">ボトムで骨盤が一気に丸まる（バットウィンク）・反りすぎる状態にならない。</div>
+    </div>
+    <!-- 6 体幹安定 -->
+    <div class="ohs-item" data-key="trunk_control">
+      <div class="ohs-label">しゃがみ全体で体幹が安定し、上体のぐらつきが少ない</div>
+      <button class="hint-btn" type="button">基準</button>
+      <div class="flag-toggle-wrap">
+        <button class="flag-btn" type="button" data-flag="yes">できている</button>
+        <button class="flag-btn" type="button" data-flag="no">できていない</button>
+      </div>
+      <div class="hint">しゃがんだときに上半身が左右に揺れたり、極端に前後に揺さぶられない。</div>
+    </div>
+    <!-- 7 胸椎伸展 -->
+    <div class="ohs-item" data-key="thoracic_ext">
+      <div class="ohs-label">胸椎の伸展が出て、上体が過度に前倒しにならない</div>
+      <button class="hint-btn" type="button">基準</button>
+      <div class="flag-toggle-wrap">
+        <button class="flag-btn" type="button" data-flag="yes">できている</button>
+        <button class="flag-btn" type="button" data-flag="no">できていない</button>
+      </div>
+      <div class="hint">しゃがんでも胸がつぶれず、バーの真下に頭が残るイメージ。</div>
+    </div>
+    <!-- 8 肋骨ポジション -->
+    <div class="ohs-item" data-key="ribcage">
+      <div class="ohs-label">肋骨の過度な張り出し／つぶれが出ず、中間位を保てる</div>
+      <button class="hint-btn" type="button">基準</button>
+      <div class="flag-toggle-wrap">
+        <button class="flag-btn" type="button" data-flag="yes">できている</button>
+        <button class="flag-btn" type="button" data-flag="no">できていない</button>
+      </div>
+      <div class="hint">しゃがみで肋骨が大きく前に突き出たり、胸郭がつぶれて呼吸が止まらない。</div>
+    </div>
+    <!-- 9 肩甲帯 -->
+    <div class="ohs-item" data-key="scapula">
+      <div class="ohs-label">肩甲帯が安定し、過度なすくみ上がり／前方移動が出ない</div>
+      <button class="hint-btn" type="button">基準</button>
+      <div class="flag-toggle-wrap">
+        <button class="flag-btn" type="button" data-flag="yes">できている</button>
+        <button class="flag-btn" type="button" data-flag="no">できていない</button>
+      </div>
+      <div class="hint">バーを支える肩がすくみすぎず、首が詰まりすぎない。</div>
+    </div>
+    <!-- 10 バーの軌道 -->
+    <div class="ohs-item" data-key="bar_path">
+      <div class="ohs-label">バー（シャフト）が足の中間あたりのライン上をまっすぐ上下する</div>
+      <button class="hint-btn" type="button">基準</button>
+      <div class="flag-toggle-wrap">
+        <button class="flag-btn" type="button" data-flag="yes">できている</button>
+        <button class="flag-btn" type="button" data-flag="no">できていない</button>
+      </div>
+      <div class="hint">しゃがんでもバーが大きく前方／後方にずれず、足の中間に収まる。</div>
+    </div>
+    <!-- 11 ラテラルシフト -->
+    <div class="ohs-item" data-key="lateral_shift">
+      <div class="ohs-label">骨盤・体幹が左右どちらかに大きく流れない</div>
+      <button class="hint-btn" type="button">基準</button>
+      <div class="flag-toggle-wrap">
+        <button class="flag-btn" type="button" data-flag="yes">できている</button>
+        <button class="flag-btn" type="button" data-flag="no">できていない</button>
+      </div>
+      <div class="hint">ボトムで片側に寄らず、中心に近い位置でしゃがめている。</div>
+    </div>
+    <!-- 12 頭部ポジション -->
+    <div class="ohs-item" data-key="head_pos">
+      <div class="ohs-label">頭部が前突しすぎず、バーと体幹の間で中間位を保てる</div>
+      <button class="hint-btn" type="button">基準</button>
+      <div class="flag-toggle-wrap">
+        <button class="flag-btn" type="button" data-flag="yes">できている</button>
+        <button class="flag-btn" type="button" data-flag="no">できていない</button>
+      </div>
+      <div class="hint">しゃがんでも顎が突き出ず、首の後ろが極端につまらない。</div>
+    </div>
+  </div>
+
+  <div class="special-error">
+    <h3>2-2. 特別エラー</h3>
+    <p class="small-note">現象として強く出るエラーをチェック。必要に応じて根本項目と自動連動。</p>
+    <div class="special-chips" id="specialErrors">
+      <div class="chip" data-map="ankle_dorsiflex">踵が浮く</div>
+      <div class="chip" data-map="foot_load">足がねじれる／片側に流れる</div>
+      <div class="chip" data-map="bar_path">バーが大きく前に倒れる</div>
+      <div class="chip" data-map="scapula">シャフトを支えきれない（肩がつらい）</div>
+    </div>
+  </div>
+
+  <button class="btn-ghost" type="button" onclick="summarizeOHS()">OHS傾向を集計</button>
+
+<div class="eval-box" id="ohsEval">
+  <div class="eval-title">OHS総合評価</div>
+  <div id="ohsEvalText" style="white-space:pre-line;font-size:11px;color:var(--muted);">
+まだ集計していません。「OHS傾向を集計」をタップ。
+  </div>
+</div>
+</section>
+  
+<!-- STEP 3: Standing Band Press（enode） -->
+  <section class="section" data-step="3">
+    <div class="card">
+      <h2>STEP3｜Standing Band Press（enode）</h2>
+      <p class="small-note">片腕・黒バンド・スプリットスタンス。各腕2試技のうち「ベスト1」の値を入力。</p>
+      <h3>3-1. 右腕</h3>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>指標</th>
+            <th>値</th>
+            <th>単位</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>平均速度（Avg V）</td>
+            <td><input id="rp_avgv" type="number" step="0.01"></td>
+            <td>m/s</td>
+          </tr>
+          <tr>
+            <td>ピーク速度（Peak V）</td>
+            <td><input id="rp_peakv" type="number" step="0.01"></td>
+            <td>m/s</td>
+          </tr>
+          <tr>
+            <td>ピーク速度到達時間（TTPV）</td>
+            <td><input id="rp_ttpv" type="number" step="0.001"></td>
+            <td>秒</td>
+          </tr>
+          <tr>
+            <td>距離（Displacement）</td>
+            <td><input id="rp_disp" type="number" step="0.1"></td>
+            <td>cm</td>
+          </tr>
+          <tr>
+            <td>最小変位（Min Disp）</td>
+            <td><input id="rp_min" type="number" step="0.1"></td>
+            <td>cm</td>
+          </tr>
+        </tbody>
+      </table>
+  <h3>3-2. 左腕</h3>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>指標</th>
+        <th>値</th>
+        <th>単位</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>平均速度（Avg V）</td>
+        <td><input id="lp_avgv" type="number" step="0.01"></td>
+        <td>m/s</td>
+      </tr>
+      <tr>
+        <td>ピーク速度（Peak V）</td>
+        <td><input id="lp_peakv" type="number" step="0.01"></td>
+        <td>m/s</td>
+      </tr>
+      <tr>
+        <td>ピーク速度到達時間（TTPV）</td>
+        <td><input id="lp_ttpv" type="number" step="0.001"></td>
+        <td>秒</td>
+      </tr>
+      <tr>
+        <td>距離（Displacement）</td>
+        <td><input id="lp_disp" type="number" step="0.1"></td>
+        <td>cm</td>
+      </tr>
+      <tr>
+        <td>最小変位（Min Disp）</td>
+        <td><input id="lp_min" type="number" step="0.1"></td>
+        <td>cm</td>
+      </tr>
+    </tbody>
+  </table>
+
+ <button class="btn-ghost" type="button" onclick="summarizePress()">Band Press傾向を集計</button>
+<div class="eval-box" id="pressEval">
+  <div class="eval-title">Standing Band Press評価</div>
+  <div id="pressEvalText" style="white-space:pre-line;font-size:11px;color:var(--muted);">
+まだ集計していません。「Band Press傾向を集計」をタップ。
+  </div>
+</div>
+</section>
+  
+  <!-- STEP 4: CMJ / RSI -->
+  <section class="section" data-step="4">
+    <div class="card">
+      <h2>STEP4｜CMJ / RSI（PUSH 2.0）</h2>
+      <p class="small-note">ジャンプ系の反応・バネ・出力を確認。</p>
+  <h3>4-1. CMJ（3試技）</h3>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>試技</th>
+        <th>高さ</th>
+        <th>単位</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>CMJ1</td>
+        <td><input id="cmj1" type="number" step="0.1"></td>
+        <td>cm</td>
+      </tr>
+      <tr>
+        <td>CMJ2</td>
+        <td><input id="cmj2" type="number" step="0.1"></td>
+        <td>cm</td>
+      </tr>
+      <tr>
+        <td>CMJ3</td>
+        <td><input id="cmj3" type="number" step="0.1"></td>
+        <td>cm</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>4-2. RSI（Drop Jump 2試技）</h3>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>試技</th>
+        <th>RSI</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>RSI1</td>
+        <td><input id="rsi1" type="number" step="0.01"></td>
+      </tr>
+      <tr>
+        <td>RSI2</td>
+        <td><input id="rsi2" type="number" step="0.01"></td>
+      </tr>
+    </tbody>
+  </table>
+
+<button class="btn-ghost" type="button" onclick="summarizeJump()">ジャンプ傾向を集計</button>
+ <div class="eval-box" id="jumpEval">
+  <div class="eval-title">CMJ / RSI評価</div>
+  <div id="jumpEvalText" style="white-space:pre-line;font-size:11px;color:var(--muted);">
+まだ集計していません。「ジャンプ傾向を集計」をタップ。
+  </div>
+</div>
+</section>
+  
+  <!-- STEP 5: BLAST -->
+  <section class="section" data-step="5">
+    <div class="card">
+      <h2>STEP5｜BLAST（置きティー）</h2>
+      <p class="small-note">5スイング分を入力。平均とバラつきから再現性を評価。</p>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>打数</th>
+            <th>Bat Speed<br>(mph)</th>
+            <th>Attack Angle<br>(deg)</th>
+            <th>Swing Time<br>(sec)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td><input id="bs1" type="number" step="0.1"></td>
+            <td><input id="aa1" type="number" step="0.1"></td>
+            <td><input id="st1" type="number" step="0.001"></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td><input id="bs2" type="number" step="0.1"></td>
+            <td><input id="aa2" type="number" step="0.1"></td>
+            <td><input id="st2" type="number" step="0.001"></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td><input id="bs3" type="number" step="0.1"></td>
+            <td><input id="aa3" type="number" step="0.1"></td>
+            <td><input id="st3" type="number" step="0.001"></td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td><input id="bs4" type="number" step="0.1"></td>
+            <td><input id="aa4" type="number" step="0.1"></td>
+            <td><input id="st4" type="number" step="0.001"></td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td><input id="bs5" type="number" step="0.1"></td>
+            <td><input id="aa5" type="number" step="0.1"></td>
+            <td><input id="st5" type="number" step="0.001"></td>
+          </tr>
+        </tbody>
+      </table>
+  <button class="btn-ghost" type="button" onclick="summarizeBlast()">BLAST傾向を集計</button>
+ <div class="eval-box" id="blastEval">
+  <div class="eval-title">BLAST評価</div>
+  <div id="blastEvalText" style="white-space:pre-line;font-size:11px;color:var(--muted);">
+まだ集計していません。「BLAST傾向を集計」をタップ。
+  </div>
+</div>
+</section>
+  
+  <!-- STEP 6: ネットスロー -->
+  <section class="section" data-step="6">
+    <div class="card">
+      <h2>STEP6｜Pocket Radar 全力ネットスロー</h2>
+      <p class="small-note">3球全力投球。最高球速とバラつきで評価。</p>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>球数</th>
+            <th>球速</th>
+            <th>単位</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1球目</td>
+            <td><input id="v1" type="number" step="0.1"></td>
+            <td>km/h</td>
+          </tr>
+          <tr>
+            <td>2球目</td>
+            <td><input id="v2" type="number" step="0.1"></td>
+            <td>km/h</td>
+          </tr>
+          <tr>
+            <td>3球目</td>
+            <td><input id="v3" type="number" step="0.1"></td>
+            <td>km/h</td>
+          </tr>
+        </tbody>
+      </table>
+  <button class="btn-ghost" type="button" onclick="summarizeThrow()">球速傾向を集計</button>
+<div class="eval-box" id="throwEval">
+  <div class="eval-title">ネットスロー評価</div>
+  <div id="throwEvalText" style="white-space:pre-line;font-size:11px;color:var(--muted);">
+まだ集計していません。「球速傾向を集計」をタップ。
+  </div>
+</div>
+</section>
+  
+  <!-- STEP 7: 総合評価 -->
+  <section class="section" data-step="7">
+    <div class="card">
+      <h2>STEP7｜総合評価・タイプ分類</h2>
+      <p class="small-note">これまでの入力から「原因→結果」を自動でまとめる簡易バージョン。</p>
+      <button class="btn-ghost" type="button" onclick="summarizeAll()">総合評価を更新</button>
+  <div class="eval-box">
+    <div class="eval-title">プレーヤー基本情報</div>
+    <div id="sumPlayer" style="white-space:pre-line;font-size:11px;color:var(--muted);"></div>
+  </div>
+
+  <div class="eval-box">
+    <div class="eval-title">動作タイプ分類</div>
+    <div id="sumType" style="white-space:pre-line;font-size:11px;color:var(--muted);"></div>
+  </div>
+
+  <div class="eval-box">
+    <div class="eval-title">主な強み</div>
+    <div id="sumStrength" style="white-space:pre-line;font-size:11px;color:var(--muted);"></div>
+  </div>
+
+    <div class="eval-box">
+    <div class="eval-title">主な課題と処方の方向性</div>
+    <div id="sumWeakness" style="white-space:pre-line;font-size:11px;color:var(--muted);"></div>
+  </div>
+
+  <button class="btn btn-primary" type="button" onclick="saveToLocal()">このセッションを保存</button>
+
+</div> 
+</section>
+</div>
+
+<!-- フッターナビ -->
+<div class="footer-nav">
+  <div class="footer-nav-inner">
+    <button class="btn btn-secondary" type="button" onclick="prevStep()">戻る</button>
+    <button class="btn btn-primary" type="button" onclick="nextStep()">次へ</button>
+  </div>
+</div>
+<script>
+var currentStep = 1;
+var maxStep = 7;
+
+function updateStepView(){
+  var sections = document.querySelectorAll(".section");
+  sections.forEach(function(sec){
+    var step = parseInt(sec.getAttribute("data-step"),10);
+    sec.classList.toggle("active", step === currentStep);
+  });
+  var dots = document.querySelectorAll("#stepNav .step-dot");
+  dots.forEach(function(dot,idx){
+    dot.classList.toggle("active", idx+1 === currentStep);
+  });
+}
+
+function nextStep(){
+  if(currentStep < maxStep){
+    currentStep++;
+    updateStepView();
+  }
+}
+function prevStep(){
+  if(currentStep > 1){
+    currentStep--;
+    updateStepView();
+  }
+}
+
+/* OHS：基準表示とフラグ切り替え */
+document.getElementById("ohsGrid").addEventListener("click",function(e){
+  var target = e.target;
+  if(target.classList.contains("hint-btn")){
+    var item = target.closest(".ohs-item");
+    var hint = item.querySelector(".hint");
+    if(hint){
+      hint.classList.toggle("open");
+    }
+  }
+  if(target.classList.contains("flag-btn")){
+    var item = target.closest(".ohs-item");
+    var flag = target.getAttribute("data-flag"); // yes / no
+    var yesBtn = item.querySelector('.flag-btn[data-flag="yes"]');
+    var noBtn  = item.querySelector('.flag-btn[data-flag="no"]');
+    if(flag === "yes"){
+      yesBtn.classList.toggle("on-yes");
+      if(yesBtn.classList.contains("on-yes")){
+        noBtn.classList.remove("on-no");
+        item.setAttribute("data-value","yes");
+      }else{
+        item.removeAttribute("data-value");
+      }
+    }else{
+      noBtn.classList.toggle("on-no");
+      if(noBtn.classList.contains("on-no")){
+        yesBtn.classList.remove("on-yes");
+        item.setAttribute("data-value","no");
+      }else{
+        item.removeAttribute("data-value");
+      }
+    }
+  }
+});
+
+/* 特別エラー：タップでON/OFF＋根本項目にマーク（できていない） */
+document.getElementById("specialErrors").addEventListener("click",function(e){
+  var chip = e.target.closest(".chip");
+  if(!chip) return;
+  chip.classList.toggle("on");
+  var key = chip.getAttribute("data-map");
+  var item = document.querySelector('.ohs-item[data-key="'+key+'"]');
+  if(item){
+    if(chip.classList.contains("on")){
+      // 根本項目を「できていない」に自動セット（上書きOK）
+      var yesBtn = item.querySelector('.flag-btn[data-flag="yes"]');
+      var noBtn  = item.querySelector('.flag-btn[data-flag="no"]');
+      noBtn.classList.add("on-no");
+      yesBtn.classList.remove("on-yes");
+      item.setAttribute("data-value","no");
+    }
+  }
+});
+
+/* OHS集計 */
+function summarizeOHS(){
+  var items = document.querySelectorAll(".ohs-item");
+  var total = 0;
+  var ok = 0;
+  var ng = 0;
+  var keyNg = [];
+  items.forEach(function(item){
+    var v = item.getAttribute("data-value");
+    if(!v) return;
+    total++;
+    var key = item.getAttribute("data-key");
+    if(v === "yes"){
+      ok++;
+    }else if(v === "no"){
+      ng++;
+      keyNg.push(key);
+    }
+  });
+  var heelChip = document.querySelector('.chip[data-map="ankle_dorsiflex"]');
+  var heelOn = heelChip && heelChip.classList.contains("on");
+
+  var lines = [];
+  lines.push("入力項目数："+total+"／12");
+  lines.push("できている："+ok+"　できていない："+ng);
+
+  if(ng === 0 && total > 0){
+    lines.push("");
+    lines.push("・OHSの基本パターンは良好。大きな制限は少ない。");
+  }else if(ng <= 3){
+    lines.push("");
+    lines.push("・一部の制限はあるが、全体としては許容範囲。");
+  }else{
+    lines.push("");
+    lines.push("・複数の項目で制限あり。動作評価とエクササイズ優先度の検討が必要。");
+  }
+
+  // 簡易パターン判定
+  if(keyNg.indexOf("ankle_dorsiflex") >= 0 || heelOn){
+    lines.push("・足関節背屈／距骨滑走の不足が疑われる（踵が浮く・前に流れる）。");
+  }
+  if(keyNg.indexOf("hip_hinge") >= 0 || keyNg.indexOf("pelvis") >= 0){
+    lines.push("・股関節ヒンジと骨盤コントロールに課題。ヒップイン系ドリルを優先。");
+  }
+  if(keyNg.indexOf("thoracic_ext") >= 0 || keyNg.indexOf("ribcage") >= 0){
+    lines.push("・胸椎伸展と肋骨ポジションの制限。胸郭の分離ドリルが有効。");
+  }
+  if(keyNg.indexOf("scapula") >= 0 || keyNg.indexOf("bar_path") >= 0){
+    lines.push("・肩甲帯の安定性不足。オーバーヘッド系の負荷は段階的に。");
+  }
+  if(keyNg.indexOf("lateral_shift") >= 0 || keyNg.indexOf("foot_load") >= 0){
+    lines.push("・左右差／ラテラルシフト傾向。スプリットスタンスでの荷重練習を優先。");
+  }
+
+  document.getElementById("ohsEvalText").textContent = lines.join("\n");
+}
+
+/* Band Press集計 */
+function summarizePress(){
+  function getNum(id){
+    var v = parseFloat(document.getElementById(id).value);
+    return isNaN(v)?null:v;
+  }
+  var rp = {
+    avgv:getNum("rp_avgv"),
+    peakv:getNum("rp_peakv"),
+    ttpv:getNum("rp_ttpv"),
+    disp:getNum("rp_disp"),
+    min:getNum("rp_min")
+  };
+  var lp = {
+    avgv:getNum("lp_avgv"),
+    peakv:getNum("lp_peakv"),
+    ttpv:getNum("lp_ttpv"),
+    disp:getNum("lp_disp"),
+    min:getNum("lp_min")
+  };
+
+  function evalSide(side,label){
+    var lines = [];
+    if(side.peakv == null || side.ttpv == null){
+      lines.push(label+"：主要指標が未入力。");
+      return lines.join("");
+    }
+    // PeakV評価（ざっくり）
+    if(side.peakv >= 2.4){
+      lines.push("・PeakV："+side.peakv.toFixed(2)+" m/s → 反応系としては上級〜プロ水準。");
+    }else if(side.peakv >= 2.0){
+      lines.push("・PeakV："+side.peakv.toFixed(2)+" m/s → 十分な出力。");
+    }else{
+      lines.push("・PeakV："+side.peakv.toFixed(2)+" m/s → 出力は今後の伸びしろ。");
+    }
+    // TTPV評価
+    if(side.ttpv <= 0.16){
+      lines.push("・TTPV："+side.ttpv.toFixed(3)+" s → 初動スイッチが速い（反応型）。");
+    }else if(side.ttpv <= 0.22){
+      lines.push("・TTPV："+side.ttpv.toFixed(3)+" s → 平均的な初動。");
+    }else{
+      lines.push("・TTPV："+side.ttpv.toFixed(3)+" s → 初動が遅れやすい（トリガーの改善余地）。");
+    }
+    // Min Disp評価
+    if(side.min != null){
+      if(side.min <= 1.0){
+        lines.push("・最小変位："+side.min.toFixed(1)+" cm → 体幹・肩甲帯の安定は良好。");
+      }else if(side.min <= 3.0){
+        lines.push("・最小変位："+side.min.toFixed(1)+" cm → 多少の逃げあり。荷重・肋骨の安定が鍵。");
+      }else{
+        lines.push("・最小変位："+side.min.toFixed(1)+" cm → 初動で身体が大きく逃げる傾向。");
+      }
+    }
+    return label+"：\n"+lines.join("\n");
+  }
+
+  var lines = [];
+  lines.push(evalSide(rp,"右腕"));
+  lines.push("");
+  lines.push(evalSide(lp,"左腕"));
+
+  // 左右差
+  if(rp.peakv != null && lp.peakv != null){
+    var diffV = rp.peakv - lp.peakv;
+    lines.push("");
+    lines.push("左右差（PeakV）：右-"+lp.peakv.toFixed(2)+" = "+diffV.toFixed(2)+" m/s");
+  }
+  if(rp.ttpv != null && lp.ttpv != null){
+    var diffT = rp.ttpv - lp.ttpv;
+    lines.push("左右差（TTPV）：右-"+lp.ttpv.toFixed(3)+" = "+diffT.toFixed(3)+" s");
+  }
+
+  document.getElementById("pressEvalText").textContent = lines.join("\n");
+}
+
+/* ジャンプ集計 */
+function summarizeJump(){
+  function getNum(id){
+    var v = parseFloat(document.getElementById(id).value);
+    return isNaN(v)?null:v;
+  }
+  var c1=getNum("cmj1"),c2=getNum("cmj2"),c3=getNum("cmj3");
+  var r1=getNum("rsi1"),r2=getNum("rsi2");
+  var cmjs = [c1,c2,c3].filter(function(v){return v!=null;});
+  var rsis = [r1,r2].filter(function(v){return v!=null;});
+  var lines = [];
+
+  if(cmjs.length>0){
+    var maxC = Math.max.apply(null,cmjs);
+    lines.push("・CMJ最大："+maxC.toFixed(1)+" cm");
+    if(maxC >= 65){
+      lines.push("　→ 出力は上級〜プロ水準。");
+    }else if(maxC >= 50){
+      lines.push("　→ 出力は良好。");
+    }else if(maxC >= 40){
+      lines.push("　→ 平均〜やや課題。");
+    }else{
+      lines.push("　→ 下肢出力に大きな伸びしろあり。");
+    }
+  }else{
+    lines.push("・CMJ未入力。");
+  }
+
+  if(rsis.length>0){
+    var maxR = Math.max.apply(null,rsis);
+    lines.push("・RSI最大："+maxR.toFixed(2));
+    if(maxR >= 2.5){
+      lines.push("　→ 反発・剛性は高水準（反応型）。");
+    }else if(maxR >= 2.0){
+      lines.push("　→ 反発は良好。");
+    }else if(maxR >= 1.5){
+      lines.push("　→ 反応と剛性は平均的。");
+    }else{
+      lines.push("　→ 反応速度・足部の剛性に伸びしろ。");
+    }
+  }else{
+    lines.push("・RSI未入力。");
+  }
+
+  document.getElementById("jumpEvalText").textContent = lines.join("\n");
+}
+
+/* BLAST集計 */
+function summarizeBlast(){
+  function getNum(id){
+    var v = parseFloat(document.getElementById(id).value);
+    return isNaN(v)?null:v;
+  }
+  var bs=[],aa=[],st=[];
+  for(var i=1;i<=5;i++){
+    var b=getNum("bs"+i);
+    var a=getNum("aa"+i);
+    var s=getNum("st"+i);
+    if(b!=null) bs.push(b);
+    if(a!=null) aa.push(a);
+    if(s!=null) st.push(s);
+  }
+  function stats(arr){
+    if(arr.length===0) return null;
+    var sum=0;
+    for(var i=0;i<arr.length;i++){sum+=arr[i];}
+    var mean=sum/arr.length;
+    var max=Math.max.apply(null,arr);
+    var min=Math.min.apply(null,arr);
+    var sd=0;
+    if(arr.length>1){
+      var vs=0;
+      for(var j=0;j<arr.length;j++){
+        var d=arr[j]-mean;
+        vs+=d*d;
+      }
+      sd=Math.sqrt(vs/(arr.length-1));
+    }
+    return {mean:mean,max:max,min:min,sd:sd};
+  }
+  var sBs=stats(bs),sAa=stats(aa),sSt=stats(st);
+  var lines=[];
+
+  if(sBs){
+    lines.push("・Bat Speed 平均："+sBs.mean.toFixed(1)+" mph（max "+sBs.max.toFixed(1)+"）");
+    if(sBs.sd){
+      lines.push("　ばらつき(SD)："+sBs.sd.toFixed(2)+" → "+(sBs.sd<=2.0?"再現性高い":"ばらつき大きめ"));
+    }
+  }else{
+    lines.push("・Bat Speed 未入力。");
+  }
+  if(sAa){
+    lines.push("・Attack Angle 平均："+sAa.mean.toFixed(1)+"°");
+    if(sAa.sd){
+      lines.push("　ばらつき(SD)："+sAa.sd.toFixed(2)+" → "+(sAa.sd<=4.0?"軌道は安定":"軌道の再現性に課題"));
+    }
+  }else{
+    lines.push("・Attack Angle 未入力。");
+  }
+  if(sSt){
+    lines.push("・Swing Time 平均："+sSt.mean.toFixed(3)+" s");
+    if(sSt.sd){
+      lines.push("　ばらつき(SD)："+sSt.sd.toFixed(3)+" → "+(sSt.sd<=0.02?"リズム安定":"タイミングの再現性に課題"));
+    }
+  }else{
+    lines.push("・Swing Time 未入力。");
+  }
+
+  document.getElementById("blastEvalText").textContent = lines.join("\n");
+}
+
+/* 球速集計 */
+function summarizeThrow(){
+  function getNum(id){
+    var v = parseFloat(document.getElementById(id).value);
+    return isNaN(v)?null:v;
+  }
+  var v1=getNum("v1"),v2=getNum("v2"),v3=getNum("v3");
+  var vs=[v1,v2,v3].filter(function(v){return v!=null;});
+  var lines=[];
+  if(vs.length===0){
+    lines.push("・球速が未入力。");
+  }else{
+    var sum=0;
+    for(var i=0;i<vs.length;i++){sum+=vs[i];}
+    var mean=sum/vs.length;
+    var max=Math.max.apply(null,vs);
+    var min=Math.min.apply(null,vs);
+    var diff=max-min;
+    lines.push("・最高球速："+max.toFixed(1)+" km/h");
+    lines.push("・平均球速："+mean.toFixed(1)+" km/h");
+    lines.push("・ばらつき（max-min）："+diff.toFixed(1)+" km/h");
+  }
+  document.getElementById("throwEvalText").textContent = lines.join("\n");
+}
+
+/* 総合評価 */
+function summarizeAll(){
+  // 基本情報
+  var name = document.getElementById("playerName").value || "（名前未入力）";
+  var age  = document.getElementById("playerAge").value || "―";
+  var cat  = document.getElementById("playerCat").value || "―";
+  var pos  = document.getElementById("playerPos").value || "―";
+  var tb   = document.getElementById("throwBat").value || "―";
+  var cond = document.getElementById("condToday").value || "―";
+  var note = document.getElementById("sessionNote").value || "";
+
+  var playerText = "選手名："+name+"\n年齢："+age+"／カテゴリ："+cat+"\nポジション："+pos+"／投打："+tb+"\n今日の主観コンディション："+cond+"/10";
+  if(note){
+    playerText += "\nメモ："+note;
+  }
+  document.getElementById("sumPlayer").textContent = playerText;
+
+  // タイプ分類（簡易ロジック）
+  function getNum(id){
+    var v = parseFloat(document.getElementById(id).value);
+    return isNaN(v)?null:v;
+  }
+
+  var rp_peakv=getNum("rp_peakv"), lp_peakv=getNum("lp_peakv");
+  var rp_ttpv=getNum("rp_ttpv"), lp_ttpv=getNum("lp_ttpv");
+  var cmj1=getNum("cmj1"),cmj2=getNum("cmj2"),cmj3=getNum("cmj3");
+  var rsi1=getNum("rsi1"),rsi2=getNum("rsi2");
+  var maxCMJ=null;
+  var cmjs=[cmj1,cmj2,cmj3].filter(function(v){return v!=null;});
+  if(cmjs.length>0) maxCMJ=Math.max.apply(null,cmjs);
+  var maxRSI=null;
+  var rsis=[rsi1,rsi2].filter(function(v){return v!=null;});
+  if(rsis.length>0) maxRSI=Math.max.apply(null,rsis);
+
+  var typeLines=[];
+  var tags=[];
+
+  // 反応型／出力型
+  var ttpvMean=null;
+  var tList=[rp_ttpv,lp_ttpv].filter(function(v){return v!=null;});
+  if(tList.length>0){
+    var s=0; for(var i=0;i<tList.length;i++){s+=tList[i];}
+    ttpvMean=s/tList.length;
+  }
+  var pvMean=null;
+  var pList=[rp_peakv,lp_peakv].filter(function(v){return v!=null;});
+  if(pList.length>0){
+    var sp=0; for(var j=0;j<pList.length;j++){sp+=pList[j];}
+    pvMean=sp/pList.length;
+  }
+
+  if(ttpvMean!=null && pvMean!=null){
+    if(ttpvMean<=0.18 && pvMean>=2.0){
+      typeLines.push("・反応も出力も高いバランスタイプ。上位レベル。");
+      tags.push("バランス型");
+    }else if(ttpvMean<=0.18 && pvMean<2.0){
+      typeLines.push("・反応型（M型）寄り。トリガーは速いが出力は今後の伸びしろ。");
+      tags.push("反応型");
+    }else if(ttpvMean>0.22 && pvMean>=2.0){
+      typeLines.push("・出力型（K型）。スイッチが遅く、タイミング調整が鍵。");
+      tags.push("出力型");
+    }else{
+      typeLines.push("・反応・出力ともに伸びしろあり。基礎から整える段階。");
+      tags.push("調整型");
+    }
+  }else{
+    typeLines.push("・Band Pressの主要指標が不足しており、タイプ分類は暫定。");
+  }
+
+  // CMJ / RSIからの補足
+  if(maxCMJ!=null){
+    if(maxCMJ>=60){
+      typeLines.push("・CMJからも下肢出力は高め。");
+    }else if(maxCMJ<45){
+      typeLines.push("・CMJから下肢出力の伸びしろが確認できる。");
+    }
+  }
+  if(maxRSI!=null){
+    if(maxRSI>=2.3){
+      typeLines.push("・RSIも高く、弾性・反応の質は良好。");
+    }else if(maxRSI<1.8){
+      typeLines.push("・RSIから反応・剛性の課題が示唆される。");
+    }
+  }
+
+  document.getElementById("sumType").textContent = (tags.length?("タイプ："+tags.join("／")+"\n"):"")+typeLines.join("\n");
+
+  // 強み・課題（シンプルに要約）
+  var strength=[];
+  var weakness=[];
+
+  // Band Press強み
+  if(pvMean!=null && pvMean>=2.2){
+    strength.push("・上半身の押し込み速度が高く、出力ポテンシャルは高い。");
+  }
+  if(ttpvMean!=null && ttpvMean<=0.18){
+    strength.push("・トリガーのオンタイムが速く、反応スピードは武器になる。");
+  }
+
+  // CMJ / RSI 強み
+  if(maxCMJ!=null && maxCMJ>=55){
+    strength.push("・下肢出力が高く、スプリント・打撃に良い土台がある。");
+  }
+  if(maxRSI!=null && maxRSI>=2.2){
+    strength.push("・RSIから、接地の反発・バネ感は良好。");
+  }
+
+  // BLAST／球速（弱み側に寄せる）
+  function getNumLocal(id){
+    var v = parseFloat(document.getElementById(id).value);
+    return isNaN(v)?null:v;
+  }
+  var bs1=getNumLocal("bs1");
+  if(bs1!=null){ /* 詳細評価はblastEvalに任せ、総合では省略 */ }
+
+  var v1=getNumLocal("v1"),v2=getNumLocal("v2"),v3=getNumLocal("v3");
+  var vList=[v1,v2,v3].filter(function(v){return v!=null;});
+  if(vList.length>0){
+    var sum=0; for(var i=0;i<vList.length;i++){sum+=vList[i];}
+    var mean=sum/vList.length;
+    var max=Math.max.apply(null,vList);
+    var min=Math.min.apply(null,vList);
+    var dif=max-min;
+    if(dif>5){
+      weakness.push("・ネットスローの球速ばらつきが大きく、再現性に課題。トリガーとリリースの安定がテーマ。");
+    }
+    if(max<130){
+      weakness.push("・現時点の球速水準から、出力とキネマティクスの両面に伸びしろがある。");
+    }
+  }
+
+  // Band Press課題
+  if(ttpvMean!=null && ttpvMean>0.22){
+    weakness.push("・Standing Pressでピーク速度到達が遅く、「スイッチの遅れ」がボトルネックになっている。");
+  }
+
+  // OHSのNG数から課題
+  var ohsItems=document.querySelectorAll(".ohs-item");
+  var ngCount=0;
+  ohsItems.forEach(function(item){
+    if(item.getAttribute("data-value")==="no") ngCount++;
+  });
+  if(ngCount>=4){
+    weakness.push("・OHSで複数の項目に制限があり、可動性と安定性を整える基礎期が必要。");
+  }
+
+  document.getElementById("sumStrength").textContent = strength.length?strength.join("\n"):"・現時点では「強み」として明確に押し出せる指標は少ない。今後の測定で更新。";
+  document.getElementById("sumWeakness").textContent = weakness.length?weakness.join("\n"):"・大きなボトルネックは目立たず、全体の底上げがテーマ。";
+}
+function collectSessionData() {
+  return {
+    timestamp: new Date().toISOString(),
+    player: {
+      name: document.getElementById("playerName").value,
+      age: document.getElementById("playerAge").value,
+      cat: document.getElementById("playerCat").value,
+      pos: document.getElementById("playerPos").value,
+      tb: document.getElementById("throwBat").value,
+      cond: document.getElementById("condToday").value,
+      memo: document.getElementById("sessionNote").value
+    },
+    ohs: document.getElementById("ohsEvalText").innerText,
+    press: document.getElementById("pressEvalText").innerText,
+    jump: document.getElementById("jumpEvalText").innerText,
+    blast: document.getElementById("blastEvalText").innerText,
+    throw: document.getElementById("throwEvalText").innerText,
+    total: {
+      player: document.getElementById("sumPlayer").innerText,
+      type: document.getElementById("sumType").innerText,
+      strength: document.getElementById("sumStrength").innerText,
+      weakness: document.getElementById("sumWeakness").innerText
+    }
+  };
+}
+function saveToLocal() {
+
+  // 未集計なら強制集計
+summarizeOHS();      // STEP2
+summarizePress();    // STEP3
+summarizeJump();     // STEP4
+summarizeBlast();    // STEP5
+summarizeThrow();    // STEP6
+summarizeAll();      // STEP7
+  
+  const data = collectSessionData();
+  const logs = JSON.parse(localStorage.getItem("sessionLogs")) || [];
+  logs.push(data);
+  localStorage.setItem("sessionLogs", JSON.stringify(logs));
+  alert("保存しました（localStorage）");
+}
+</script>
+</body>
+</html>
