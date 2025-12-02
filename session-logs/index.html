@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>セッション履歴ビューア｜adjustment-lab</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<meta name="theme-color" content="#f8faf9">
+<style>
+:root{
+  --bg:#f8faf9;
+  --card:#ffffff;
+  --accent:#00b386;
+  --text:#1a1a1a;
+  --muted:#666;
+  --line:rgba(0,0,0,0.08);
+  font-family:'Noto Sans JP',sans-serif;
+}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.7;
+  text-rendering:optimizeLegibility;
+}
+header{
+  padding:14px 12px;
+  border-bottom:1px solid var(--line);
+  background:var(--bg);
+  position:sticky;
+  top:0;
+  z-index:10;
+}
+h1{
+  margin:0 0 2px;
+  font-size:18px;
+  font-weight:600;
+}
+p.sub{
+  margin:0;
+  font-size:12px;
+  color:var(--muted);
+}
+.container{
+  max-width:900px;
+  margin:0 auto;
+  padding:10px 12px 80px;
+}
+.log-card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:12px;
+  margin-bottom:10px;
+}
+.log-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:6px;
+}
+.log-title{
+  font-size:14px;
+  font-weight:600;
+}
+.log-date{
+  font-size:11px;
+  color:var(--muted);
+}
+.btn{
+  padding:5px 10px;
+  font-size:12px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+}
+.btn-primary{
+  background:var(--accent);
+  color:#fff;
+}
+.btn-danger{
+  background:#e45757;
+  color:#fff;
+}
+.btn-ghost{
+  background:#e1e5e4;
+  color:var(--text);
+}
+.detail{
+  margin-top:6px;
+  padding:8px;
+  border-radius:8px;
+  background:#fdfefe;
+  border:1px solid var(--line);
+  font-size:12px;
+  white-space:pre-line;
+}
+#exportBox{
+  position:fixed;
+  left:0;
+  right:0;
+  bottom:0;
+  background:rgba(248,250,249,0.97);
+  border-top:1px solid var(--line);
+  padding:8px 12px;
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>セッション履歴ビューア</h1>
+  <p class="sub">localStorage「sessionLogs」を一覧・参照・削除する。</p>
+</header>
+<div class="container">
+  <div id="logList">読み込み中…</div>
+</div>
+<div id="exportBox">
+  <button class="btn btn-primary" onclick="exportJSON()">JSONエクスポート</button>
+  <button class="btn btn-ghost" onclick="clearAll()">全削除</button>
+</div>
+<script>
+function loadLogs(){
+  const logs = JSON.parse(localStorage.getItem("sessionLogs")) || [];
+  const box = document.getElementById("logList");
+
+  if(logs.length === 0){
+    box.textContent = "保存されたセッションはありません。";
+    return;
+  }
+
+  box.innerHTML = "";
+
+  logs.forEach((log,idx)=>{
+    const card = document.createElement("div");
+    card.className = "log-card";
+
+    const head = document.createElement("div");
+    head.className = "log-head";
+
+    const title = document.createElement("div");
+    title.className = "log-title";
+    title.textContent = (log.player.name || "（名前なし）");
+
+    const date = document.createElement("div");
+    date.className = "log-date";
+    date.textContent = log.timestamp;
+
+    head.appendChild(title);
+    head.appendChild(date);
+
+    const btns = document.createElement("div");
+
+    const btnDetail = document.createElement("button");
+    btnDetail.className = "btn btn-ghost";
+    btnDetail.textContent = "詳細";
+    btnDetail.onclick = ()=>toggleDetail(idx);
+
+    const btnDelete = document.createElement("button");
+    btnDelete.className = "btn btn-danger";
+    btnDelete.textContent = "削除";
+    btnDelete.onclick = ()=>deleteOne(idx);
+
+    btns.appendChild(btnDetail);
+    btns.appendChild(btnDelete);
+
+    head.appendChild(btns);
+
+    const detail = document.createElement("div");
+    detail.className = "detail";
+    detail.style.display = "none";
+
+    detail.textContent =
+      "【基本情報】\n" + log.total.player + "\n\n" +
+      "【タイプ】\n" + log.total.type + "\n\n" +
+      "【強み】\n" + log.total.strength + "\n\n" +
+      "【課題】\n" + log.total.weakness + "\n\n" +
+      "―――――――――――――――――――\n" +
+      "【OHS】\n" + log.ohs + "\n\n" +
+      "【Press】\n" + log.press + "\n\n" +
+      "【Jump】\n" + log.jump + "\n\n" +
+      "【BLAST】\n" + log.blast + "\n\n" +
+      "【Throw】\n" + log.throw;
+
+    card.appendChild(head);
+    card.appendChild(detail);
+
+    box.appendChild(card);
+  });
+}
+
+function toggleDetail(idx){
+  const cards = document.querySelectorAll(".log-card .detail");
+  const target = cards[idx];
+  if(target.style.display === "none"){
+    target.style.display = "block";
+  }else{
+    target.style.display = "none";
+  }
+}
+
+function deleteOne(idx){
+  if(!confirm("このセッションを削除しますか？")) return;
+  const logs = JSON.parse(localStorage.getItem("sessionLogs")) || [];
+  logs.splice(idx,1);
+  localStorage.setItem("sessionLogs", JSON.stringify(logs));
+  loadLogs();
+}
+
+function clearAll(){
+  if(!confirm("本当に全削除しますか？\n復元できません。")) return;
+  localStorage.removeItem("sessionLogs");
+  loadLogs();
+}
+
+function exportJSON(){
+  const logs = JSON.parse(localStorage.getItem("sessionLogs")) || [];
+  const blob = new Blob([JSON.stringify(logs,null,2)],{type:"application/json"});
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "sessionLogs.json";
+  a.click();
+
+  URL.revokeObjectURL(url);
+}
+
+loadLogs();
+</script>
+</body>
+</html>
