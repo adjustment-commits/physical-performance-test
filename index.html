@@ -341,6 +341,7 @@ justify-content:flex-start;
   <header>
     <h1>60分パーソナル評価フォーム</h1>
     <p>Overhead Squat → Standing Band Press（enode）→ CMJ/RSI → BLAST → ネットスロー（Pocket Radar）を一括記録。</p>
+
     <div class="step-nav" id="stepNav">
       <div class="step-dot active"></div>
       <div class="step-dot"></div>
@@ -820,13 +821,17 @@ justify-content:flex-start;
 </div>
 
 <!-- フッターナビ -->
-<div class="footer-nav">
-  <div class="footer-nav-inner">
-    <button class="btn btn-secondary" type="button" onclick="prevStep()">戻る</button>
-    <button class="btn btn-primary" type="button" onclick="nextStep()">次へ</button>
-  </div>
+<div class="footer-nav-inner">
+  <button class="btn btn-secondary" type="button" onclick="prevStep()">戻る</button>
+  <button class="btn btn-primary" type="button" onclick="nextStep()">次へ</button>
+
+  <button class="btn btn-ghost" type="button"
+    onclick="location.href='./session-logs/index.html'">
+    履歴
+  </button>
 </div>
-<script>
+  
+  <script>
 var currentStep = 1;
 var maxStep = 7;
 
