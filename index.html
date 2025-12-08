@@ -361,6 +361,7 @@ justify-content:flex-start;
         <label for="playerName">選手名</label>
         <input id="playerName" type="text" placeholder="例）山田 太郎">
       </div>
+    
       <div class="row">
         <label for="playerAge">年齢</label>
         <input id="playerAge" type="number" min="12" max="40" placeholder="">
@@ -377,6 +378,7 @@ justify-content:flex-start;
         <label for="playerPos">ポジション</label>
         <input id="playerPos" type="text" placeholder="例）投手／内野手／外野手など">
       </div>
+        <div class="form-block"> <label for="playerHeight">身長（cm）</label> <input id="playerHeight" type="number" placeholder="例）180"> </div>
       <div class="row">
         <label for="throwBat">投／打</label>
         <input id="throwBat" type="text" placeholder="例）右投左打">
@@ -821,6 +823,7 @@ justify-content:flex-start;
 </div>
 
 <!-- フッターナビ -->
+  <div class="footer-nav">
 <div class="footer-nav-inner">
   <button class="btn btn-secondary" type="button" onclick="prevStep()">戻る</button>
   <button class="btn btn-primary" type="button" onclick="nextStep()">次へ</button>
@@ -830,6 +833,7 @@ justify-content:flex-start;
     履歴
   </button>
 </div>
+  </div>
   
   <script>
 var currentStep = 1;
@@ -968,7 +972,7 @@ function summarizeOHS(){
     lines.push("・左右差／ラテラルシフト傾向。スプリットスタンスでの荷重練習を優先。");
   }
 
-  document.getElementById("ohsEvalText").textContent = lines.join("\n");
+  document.getElementById("ohsEvalText").innertext = lines.join("\n");
 }
 
 /* Band Press集計 */
@@ -1043,7 +1047,7 @@ function summarizePress(){
     lines.push("左右差（TTPV）：右-"+lp.ttpv.toFixed(3)+" = "+diffT.toFixed(3)+" s");
   }
 
-  document.getElementById("pressEvalText").textContent = lines.join("\n");
+  document.getElementById("pressEvalText").innertext = lines.join("\n");
 }
 
 /* ジャンプ集計 */
@@ -1090,7 +1094,7 @@ function summarizeJump(){
     lines.push("・RSI未入力。");
   }
 
-  document.getElementById("jumpEvalText").textContent = lines.join("\n");
+  document.getElementById("jumpEvalText").innertext = lines.join("\n");
 }
 
 /* BLAST集計 */
@@ -1154,7 +1158,7 @@ function summarizeBlast(){
     lines.push("・Swing Time 未入力。");
   }
 
-  document.getElementById("blastEvalText").textContent = lines.join("\n");
+  document.getElementById("blastEvalText").innertext = lines.join("\n");
 }
 
 /* 球速集計 */
@@ -1179,7 +1183,7 @@ function summarizeThrow(){
     lines.push("・平均球速："+mean.toFixed(1)+" km/h");
     lines.push("・ばらつき（max-min）："+diff.toFixed(1)+" km/h");
   }
-  document.getElementById("throwEvalText").textContent = lines.join("\n");
+  document.getElementById("throwEvalText").innertext = lines.join("\n");
 }
 
 /* 総合評価 */
@@ -1267,7 +1271,7 @@ function summarizeAll(){
     }
   }
 
-  document.getElementById("sumType").textContent = (tags.length?("タイプ："+tags.join("／")+"\n"):"")+typeLines.join("\n");
+  document.getElementById("sumType").innertext = (tags.length?("タイプ："+tags.join("／")+"\n"):"")+typeLines.join("\n");
 
   // 強み・課題（シンプルに要約）
   var strength=[];
@@ -1328,8 +1332,27 @@ function summarizeAll(){
     weakness.push("・OHSで複数の項目に制限があり、可動性と安定性を整える基礎期が必要。");
   }
 
-  document.getElementById("sumStrength").textContent = strength.length?strength.join("\n"):"・現時点では「強み」として明確に押し出せる指標は少ない。今後の測定で更新。";
-  document.getElementById("sumWeakness").textContent = weakness.length?weakness.join("\n"):"・大きなボトルネックは目立たず、全体の底上げがテーマ。";
+document.getElementById("sumStrength").innerText =
+  strength.length ? strength.join("\n") :
+  "・現時点では「強み」として明確に押し出せる指標は少ない。今後の測定で更新。";
+
+document.getElementById("sumWeakness").innerText =
+  weakness.length ? weakness.join("\n") :
+  "・大きなボトルネックは目立たず、全体の底上げがテーマ。";
+
+if(p){
+  document.getElementById("sumWeakness").innerText += 
+    "\n\n【Pitching予測】\n" +
+    "推定スピン：" + Math.round(p.spin) + " rpm\n" +
+    "IVB：" + p.ivb.toFixed(1) + " cm\n" +
+    "試合球速推定：" + p.gameV.toFixed(1) + " km/h\n" +
+    "Release Height：" + p.rh.toFixed(2) + " m\n" +
+    "Release Side：" + p.side.toFixed(2) + " m\n" +
+    "Extension：" + p.ext.toFixed(2) + " m\n" +
+    "VAA：" + p.vaa.toFixed(2) + "°\n" +
+    "Effective Velocity：" + p.effV.toFixed(1) + " km/h";
+}
+
 }
 function collectSessionData() {
   return {
@@ -1371,6 +1394,85 @@ summarizeAll();      // STEP7
   logs.push(data);
   localStorage.setItem("sessionLogs", JSON.stringify(logs));
   alert("保存しました（localStorage）");
+}
+
+function predictPitching(){
+function num(id){
+var v = parseFloat(document.getElementById(id).value);
+return isNaN(v) ? null : v;
+}
+// PeakV / TTPV
+var rp_peak = num("rp_peakv");
+var lp_peak = num("lp_peakv");
+var rp_tt = num("rp_ttpv");
+var lp_tt = num("lp_ttpv");
+var peaks = [];
+if(rp_peak != null) peaks.push(rp_peak);
+if(lp_peak != null) peaks.push(lp_peak);
+var ttps = [];
+if(rp_tt != null) ttps.push(rp_tt);
+if(lp_tt != null) ttps.push(lp_tt);
+if(peaks.length === 0 || ttps.length === 0) return null;
+var pk = peaks.reduce(function(a,b){return a+b;},0) / peaks.length;
+var tt = ttps.reduce(function(a,b){return a+b;},0) / ttps.length;
+// OHS制限数
+var ohsItems = document.querySelectorAll(".ohs-item");
+var ng = 0;
+var shoulderPenalty = 0;
+ohsItems.forEach(function(i){
+var v = i.getAttribute("data-value");
+if(v === "no") ng++;
+var k = i.getAttribute("data-key");
+if(k === "scapula" || k === "ribcage") shoulderPenalty++;
+});
+// Spin Rate推定
+var coeff = 1.00 - ng * 0.015;
+if(coeff < 0.85) coeff = 0.85;
+var Spin = 18 * pk * (1 - tt * 0.4) * coeff;
+// IVB
+var IVB = 0.32 * Spin - 8;
+// Game Velo（ネットスロー→登板換算）
+var v1 = num("v1"), v2 = num("v2"), v3 = num("v3");
+var vs = [];
+if(v1 != null) vs.push(v1);
+if(v2 != null) vs.push(v2);
+if(v3 != null) vs.push(v3);
+if(vs.length === 0) return null;
+var maxV = Math.max.apply(null, vs);
+var GameV = maxV + 4.5;
+// 身長（入力が無ければ180cm扱い）
+var h = document.getElementById("playerHeight");
+var height = h ? parseFloat(h.value) : NaN;
+if(isNaN(height)) height = 180;
+height = height / 100;
+// Release Height
+var RH = height * 0.78 - shoulderPenalty * 0.03;
+if(RH < 1.45) RH = 1.45;
+// Release Side
+var lateralShift = 0;
+var lsItem = document.querySelector('.ohs-item[data-key="lateral_shift"]');
+if(lsItem && lsItem.getAttribute("data-value") === "no"){
+lateralShift = 0.05;
+}
+var Side = 0.18 + lateralShift;
+// Extension
+var Ext = 1.25 + (pk - 2.0) * 0.22 - (tt - 0.18) * 2.0;
+if(Ext < 1.10) Ext = 1.10;
+if(Ext > 1.70) Ext = 1.70;
+// VAA（簡易モデル）
+var VAA = (-8.5) + (IVB * 0.035);
+// Effective Velocity
+var EffV = GameV * (1 + Ext / 18.44);
+return {
+spin: Spin,
+ivb: IVB,
+gameV: GameV,
+rh: RH,
+side: Side,
+ext: Ext,
+vaa: VAA,
+effV: EffV
+};
 }
 </script>
 </body>
