@@ -1339,7 +1339,9 @@ document.getElementById("sumStrength").innerText =
 document.getElementById("sumWeakness").innerText =
   weakness.length ? weakness.join("\n") :
   "・大きなボトルネックは目立たず、全体の底上げがテーマ。";
+}
 
+    
 if(p){
   document.getElementById("sumWeakness").innerText += 
     "\n\n【Pitching予測】\n" +
@@ -1353,7 +1355,7 @@ if(p){
     "Effective Velocity：" + p.effV.toFixed(1) + " km/h";
 }
 
-}
+
 function collectSessionData() {
   return {
     timestamp: new Date().toISOString(),
